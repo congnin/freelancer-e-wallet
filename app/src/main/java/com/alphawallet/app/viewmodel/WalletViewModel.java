@@ -37,8 +37,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
-public class WalletViewModel extends BaseViewModel
-{
+public class WalletViewModel extends BaseViewModel {
     public static long BALANCE_BACKUP_CHECK_INTERVAL = 5 * DateUtils.MINUTE_IN_MILLIS;
     public static double VALUE_THRESHOLD = 200.0; //$200 USD value is difference between red and grey backup warnings
 
@@ -66,8 +65,7 @@ public class WalletViewModel extends BaseViewModel
             TokensService tokensService,
             ChangeTokenEnableInteract changeTokenEnableInteract,
             MyAddressRouter myAddressRouter,
-            PreferenceRepositoryType preferenceRepository)
-    {
+            PreferenceRepositoryType preferenceRepository) {
         this.fetchTokensInteract = fetchTokensInteract;
         this.tokenDetailRouter = tokenDetailRouter;
         this.assetDisplayRouter = assetDisplayRouter;
@@ -82,35 +80,40 @@ public class WalletViewModel extends BaseViewModel
     public LiveData<TokenCardMeta[]> tokens() {
         return tokens;
     }
-    public LiveData<Wallet> defaultWallet() { return defaultWallet; }
-    public LiveData<GenericWalletInteract.BackupLevel> backupEvent() { return backupEvent; }
 
-    public String getWalletAddr() { return defaultWallet.getValue() != null ? defaultWallet.getValue().address : ""; }
-    public WalletType getWalletType() { return defaultWallet.getValue() != null ? defaultWallet.getValue().type : WalletType.KEYSTORE; }
+    public LiveData<Wallet> defaultWallet() {
+        return defaultWallet;
+    }
 
-    public void prepare()
-    {
-        lastBackupCheck = System.currentTimeMillis() - BALANCE_BACKUP_CHECK_INTERVAL + 5*DateUtils.SECOND_IN_MILLIS;
+    public LiveData<GenericWalletInteract.BackupLevel> backupEvent() {
+        return backupEvent;
+    }
+
+    public String getWalletAddr() {
+        return defaultWallet.getValue() != null ? defaultWallet.getValue().address : "";
+    }
+
+    public WalletType getWalletType() {
+        return defaultWallet.getValue() != null ? defaultWallet.getValue().type : WalletType.KEYSTORE;
+    }
+
+    public void prepare() {
+        lastBackupCheck = System.currentTimeMillis() - BALANCE_BACKUP_CHECK_INTERVAL + 5 * DateUtils.SECOND_IN_MILLIS;
         //load the activity meta list
         disposable = genericWalletInteract
                 .find()
                 .subscribe(this::onDefaultWallet, this::onError);
     }
 
-    public void reloadTokens()
-    {
-        if (defaultWallet.getValue() != null)
-        {
+    public void reloadTokens() {
+        if (defaultWallet.getValue() != null) {
             fetchTokens(defaultWallet().getValue());
-        }
-        else
-        {
+        } else {
             prepare();
         }
     }
 
-    private void onDefaultWallet(Wallet wallet)
-    {
+    private void onDefaultWallet(Wallet wallet) {
         tokensService.setCurrentAddress(wallet.address);
         assetDefinitionService.startEventListener();
         defaultWallet.postValue(wallet);
@@ -118,8 +121,7 @@ public class WalletViewModel extends BaseViewModel
         fetchTokens(wallet);
     }
 
-    private void fetchTokens(Wallet wallet)
-    {
+    private void fetchTokens(Wallet wallet) {
         disposable =
                 fetchTokensInteract.fetchTokenMetas(wallet, tokensService.getNetworkFilters(), assetDefinitionService)
                         .subscribeOn(Schedulers.io())
@@ -127,47 +129,37 @@ public class WalletViewModel extends BaseViewModel
                         .subscribe(this::onTokenMetas, this::onError);
     }
 
-    private void onTokenMetas(TokenCardMeta[] metaTokens)
-    {
+    private void onTokenMetas(TokenCardMeta[] metaTokens) {
         tokens.postValue(metaTokens);
         tokensService.updateTickers();
     }
 
-    public AssetDefinitionService getAssetDefinitionService()
-    {
+    public AssetDefinitionService getAssetDefinitionService() {
         return assetDefinitionService;
     }
 
-    public TokensService getTokensService()
-    {
+    public TokensService getTokensService() {
         return tokensService;
     }
 
-    public Token getTokenFromService(@NotNull Token token)
-    {
+    public Token getTokenFromService(@NotNull Token token) {
         Token serviceToken = tokensService.getToken(token.tokenInfo.chainId, token.getAddress());
-        if (serviceToken != null && serviceToken.isEthereum())
-        {
+        if (serviceToken != null && serviceToken.isEthereum()) {
             return tokensService.getServiceToken(token.tokenInfo.chainId);
-        }
-        else
-        {
+        } else {
             return (serviceToken != null) ? serviceToken : token;
         }
     }
 
-    public Wallet getWallet()
-    {
+    public Wallet getWallet() {
         return defaultWallet.getValue();
     }
 
-    public void setKeyBackupTime(String walletAddr)
-    {
+    public void setKeyBackupTime(String walletAddr) {
         genericWalletInteract.updateBackupTime(walletAddr);
     }
 
-    public void setKeyWarningDismissTime(String walletAddr)
-    {
+    public void setKeyWarningDismissTime(String walletAddr) {
         genericWalletInteract.updateWarningTime(walletAddr);
     }
 
@@ -176,8 +168,7 @@ public class WalletViewModel extends BaseViewModel
         token.tokenInfo.isEnabled = enabled;
     }
 
-    public void showMyAddress(Context context)
-    {
+    public void showMyAddress(Context context) {
         myAddressRouter.open(context, defaultWallet.getValue());
     }
 
@@ -187,16 +178,13 @@ public class WalletViewModel extends BaseViewModel
         activity.startActivityForResult(intent, C.REQUEST_UNIVERSAL_SCAN);
     }
 
-    public Realm getRealmInstance(Wallet wallet)
-    {
+    public Realm getRealmInstance(Wallet wallet) {
         return tokensService.getRealmInstance(wallet);
     }
 
-    public void showTokenDetail(Activity activity, Token token)
-    {
+    public void showTokenDetail(Activity activity, Token token) {
         boolean hasDefinition = assetDefinitionService.hasDefinition(token.tokenInfo.chainId, token.getAddress());
-        switch (token.getInterfaceSpec())
-        {
+        switch (token.getInterfaceSpec()) {
             case ETHEREUM:
             case ERC20:
             case CURRENCY:
@@ -229,14 +217,13 @@ public class WalletViewModel extends BaseViewModel
         }
     }
 
-    public void checkBackup()
-    {
-        if (TextUtils.isEmpty(getWalletAddr()) || System.currentTimeMillis() < (lastBackupCheck + BALANCE_BACKUP_CHECK_INTERVAL)) return;
+    public void checkBackup() {
+        if (TextUtils.isEmpty(getWalletAddr()) || System.currentTimeMillis() < (lastBackupCheck + BALANCE_BACKUP_CHECK_INTERVAL))
+            return;
         lastBackupCheck = System.currentTimeMillis();
         double walletUSDValue = tokensService.getUSDValue();
 
-        if (walletUSDValue > 0.0)
-        {
+        if (walletUSDValue > 0.0) {
             final BigDecimal calcValue = BigDecimal.valueOf(walletUSDValue);
             genericWalletInteract.getBackupWarning(getWalletAddr())
                     .map(needsBackup -> calculateBackupWarning(needsBackup, calcValue))
@@ -246,35 +233,26 @@ public class WalletViewModel extends BaseViewModel
         }
     }
 
-    private void onTokenBalanceError(Throwable throwable)
-    {
+    private void onTokenBalanceError(Throwable throwable) {
         //unable to resolve - phone may be offline
     }
 
-    private GenericWalletInteract.BackupLevel calculateBackupWarning(Boolean needsBackup, @NotNull BigDecimal value)
-    {
-        if (!needsBackup)
-        {
+    private GenericWalletInteract.BackupLevel calculateBackupWarning(Boolean needsBackup, @NotNull BigDecimal value) {
+        if (!needsBackup) {
             return GenericWalletInteract.BackupLevel.BACKUP_NOT_REQUIRED;
-        }
-        else if (value.compareTo(BigDecimal.valueOf(VALUE_THRESHOLD)) >= 0)
-        {
+        } else if (value.compareTo(BigDecimal.valueOf(VALUE_THRESHOLD)) >= 0) {
             return GenericWalletInteract.BackupLevel.WALLET_HAS_HIGH_VALUE;
-        }
-        else
-        {
+        } else {
             return GenericWalletInteract.BackupLevel.WALLET_HAS_LOW_VALUE;
         }
     }
 
-    public void notifyRefresh()
-    {
+    public void notifyRefresh() {
         tokensService.clearFocusToken(); //ensure if we do a refresh there's no focus token preventing correct update
         tokensService.onWalletRefreshSwipe();
     }
 
-    public boolean isChainToken(int chainId, String tokenAddress)
-    {
+    public boolean isChainToken(int chainId, String tokenAddress) {
         return tokensService.isChainToken(chainId, tokenAddress);
     }
 
@@ -286,8 +264,8 @@ public class WalletViewModel extends BaseViewModel
         preferenceRepository.setMarshMallowWarning(shown);
     }
 
-    public void saveAvatar(Wallet wallet)
-    {
-        genericWalletInteract.updateWalletInfo(wallet, wallet.name, () -> { });
+    public void saveAvatar(Wallet wallet) {
+        genericWalletInteract.updateWalletInfo(wallet, wallet.name, () -> {
+        });
     }
 }

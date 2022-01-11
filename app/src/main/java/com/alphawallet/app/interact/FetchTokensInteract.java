@@ -26,40 +26,35 @@ public class FetchTokensInteract {
         this.tokenRepository = tokenRepository;
     }
 
-    public Observable<ContractLocator> getContractResponse(String address, int chainId, String method)
-    {
+    public Observable<ContractLocator> getContractResponse(String address, int chainId, String method) {
         return tokenRepository.getTokenResponse(address, chainId, method).toObservable();
     }
 
-    public Observable<Token> updateDefaultBalance(Token token, Wallet wallet)
-    {
+    public Observable<Token> updateDefaultBalance(Token token, Wallet wallet) {
         return tokenRepository.fetchActiveTokenBalance(wallet.address, token)
                 .subscribeOn(Schedulers.io());
     }
 
-    public Observable<Token> updateBalance(String address, Token token)
-    {
+    public Observable<Token> updateBalance(String address, Token token) {
         if (token == null) return Observable.fromCallable(()
-                                      -> new Token(null, BigDecimal.ZERO, 0, "", ContractType.NOT_SET));
+                -> new Token(null, BigDecimal.ZERO, 0, "", ContractType.NOT_SET));
         return tokenRepository.fetchActiveTokenBalance(address, token)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Single<TokenTicker> getEthereumTicker(int chainId)
-    {
+    public Single<TokenTicker> getEthereumTicker(int chainId) {
         return tokenRepository.getEthTicker(chainId);
     }
 
-    public Single<Boolean> checkRedeemed(Token token, List<BigInteger> tickets)
-    {
-        if (token == null || tickets == null || tickets.size() == 0) return Single.fromCallable(() -> true ); //early return for invalid input
+    public Single<Boolean> checkRedeemed(Token token, List<BigInteger> tickets) {
+        if (token == null || tickets == null || tickets.size() == 0)
+            return Single.fromCallable(() -> true); //early return for invalid input
         BigInteger tokenId = tickets.get(0);
         return tokenRepository.fetchIsRedeemed(token, tokenId);
     }
 
-    public Single<TokenCardMeta[]> fetchTokenMetas(Wallet wallet, List<Integer> networkFilters, AssetDefinitionService svs)
-    {
+    public Single<TokenCardMeta[]> fetchTokenMetas(Wallet wallet, List<Integer> networkFilters, AssetDefinitionService svs) {
         return tokenRepository.fetchTokenMetas(wallet, networkFilters, svs);
     }
 }

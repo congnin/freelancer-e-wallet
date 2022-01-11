@@ -87,8 +87,7 @@ import static com.alphawallet.app.entity.WalletPage.WALLET;
 import static com.alphawallet.ethereum.EthereumNetworkBase.MAINNET_ID;
 
 public class HomeActivity extends BaseNavigationActivity implements View.OnClickListener, HomeCommsInterface,
-        FragmentMessenger, Runnable, SignAuthenticationCallback, LifecycleObserver
-{
+        FragmentMessenger, Runnable, SignAuthenticationCallback, LifecycleObserver {
     @Inject
     HomeViewModelFactory homeViewModelFactory;
     private HomeViewModel viewModel;
@@ -119,8 +118,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     public static final String STORED_PAGE = "currentPage";
     public static final String RESET_TOKEN_SERVICE = "HOME_reset_ts";
 
-    public HomeActivity()
-    {
+    public HomeActivity() {
         if (CustomViewSettings.hideDappBrowser()) dappBrowserFragment = new Fragment();
         else dappBrowserFragment = new DappBrowserFragment();
         settingsFragment = new NewSettingsFragment();
@@ -130,8 +128,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    private void onMoveToForeground()
-    {
+    private void onMoveToForeground() {
         Log.d("LIFE", "AlphaWallet into foreground");
         ((WalletFragment) walletFragment).walletInFocus();
         if (viewModel != null) viewModel.startTransactionUpdate();
@@ -139,49 +136,39 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    private void onMoveToBackground()
-    {
+    private void onMoveToBackground() {
         Log.d("LIFE", "AlphaWallet into background");
         if (viewModel != null) viewModel.stopTransactionUpdate();
         isForeground = false;
     }
 
     @Override
-    public void onTrimMemory(int level)
-    {
+    public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        if (!isForeground)
-        {
+        if (!isForeground) {
             onMoveToBackground();
         }
     }
 
     @Override
-    protected void attachBaseContext(Context base)
-    {
+    protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasFocus)
-    {
+    public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus)
-        {
-            if (viewModel.fullScreenSelected())
-            {
+        if (hasFocus) {
+            if (viewModel.fullScreenSelected()) {
                 hideSystemUI();
-            }
-            else
-            {
+            } else {
                 showSystemUI();
             }
         }
     }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState)
-    {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
         LocaleUtils.setActiveLocale(this);
@@ -192,15 +179,12 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
 
         Bundle bundle = null;
         Intent intent = getIntent();
-        if (intent != null)
-        {
+        if (intent != null) {
             bundle = intent.getExtras();
             Uri data = intent.getData();
-            if (data != null)
-            {
+            if (data != null) {
                 String flags = data.toString();
-                if (flags.startsWith(NotificationService.AWSTARTUP))
-                {
+                if (flags.startsWith(NotificationService.AWSTARTUP)) {
                     flags = flags.substring(NotificationService.AWSTARTUP.length());
                     //move window to token if found
                     ((WalletFragment) walletFragment).setImportFilename(flags);
@@ -221,23 +205,19 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         viewPager.lockPages(true);
         viewPager.setAdapter(pagerAdapter);
         viewPager.setOffscreenPageLimit(WalletPage.values().length);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener()
-        {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-            {
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
             }
 
             @Override
-            public void onPageSelected(int position)
-            {
+            public void onPageSelected(int position) {
 
             }
 
             @Override
-            public void onPageScrollStateChanged(int state)
-            {
+            public void onPageScrollStateChanged(int state) {
 
             }
         });
@@ -252,33 +232,25 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
 
         int lastId = viewModel.getLastFragmentId();
 
-        if (getIntent().getBooleanExtra(C.Key.FROM_SETTINGS, false))
-        {
+        if (getIntent().getBooleanExtra(C.Key.FROM_SETTINGS, false)) {
             showPage(SETTINGS);
-        }
-        else if (lastId >= 0 && lastId < WalletPage.values().length)
-        {
+        } else if (lastId >= 0 && lastId < WalletPage.values().length) {
             showPage(WalletPage.values()[lastId]);
             viewModel.storeCurrentFragmentId(-1);
         }
 
-        if (CustomViewSettings.hideDappBrowser())
-        {
+        if (CustomViewSettings.hideDappBrowser()) {
             removeDappBrowser();
-        }
-        else if (intent != null && intent.getStringExtra("url") != null)
-        {
+        } else if (intent != null && intent.getStringExtra("url") != null) {
             String url = getIntent().getStringExtra("url");
             showPage(DAPP_BROWSER);
-            ((DappBrowserFragment)dappBrowserFragment).loadDirect(url);
+            ((DappBrowserFragment) dappBrowserFragment).loadDirect(url);
         }
 
-        if (bundle != null)
-        {
+        if (bundle != null) {
             getIntent().getExtras();
             String startIntent = bundle.getString("startIntent");
-            if (!TextUtils.isEmpty(startIntent) && startIntent.startsWith(WalletConnectActivity.WC_INTENT))
-            {
+            if (!TextUtils.isEmpty(startIntent) && startIntent.startsWith(WalletConnectActivity.WC_INTENT)) {
                 intent = new Intent(this, WalletConnectActivity.class);
                 intent.putExtra("qrCode", startIntent);
                 startActivity(intent);
@@ -288,27 +260,23 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         KeyboardVisibilityEvent.setEventListener(
                 this, isOpen -> {
                     boolean requiresDappBrowserResize = !viewModel.fullScreenSelected() && viewPager.getCurrentItem() == DAPP_BROWSER.ordinal();
-                    if (isOpen)
-                    {
+                    if (isOpen) {
                         setNavBarVisibility(View.GONE);
-                        if (requiresDappBrowserResize) ((DappBrowserFragment)dappBrowserFragment).softKeyboardVisible();
-                    }
-                    else
-                    {
+                        if (requiresDappBrowserResize)
+                            ((DappBrowserFragment) dappBrowserFragment).softKeyboardVisible();
+                    } else {
                         setNavBarVisibility(View.VISIBLE);
-                        if (requiresDappBrowserResize) ((DappBrowserFragment)dappBrowserFragment).softKeyboardGone();
+                        if (requiresDappBrowserResize)
+                            ((DappBrowserFragment) dappBrowserFragment).softKeyboardGone();
                     }
                 });
 
         viewModel.tryToShowRateAppDialog(this);
         viewModel.tryToShowEmailPrompt(this, successOverlay, handler, this);
 
-        if (Utils.verifyInstallerId(this))
-        {
+        if (Utils.verifyInstallerId(this)) {
             UpdateUtils.checkForUpdates(this, this);
-        }
-        else
-        {
+        } else {
             //TODO: Check we are using latest version on github, since we're using a downloaded/manually installed version
             //First check that this the package name is "io.stormbird.wallet" - it could be a fork
         }
@@ -327,16 +295,13 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 });
     }
 
-    private void onBackup(String address)
-    {
-        if (Utils.isAddressValid(address))
-        {
+    private void onBackup(String address) {
+        if (Utils.isAddressValid(address)) {
             Toast.makeText(this, getString(R.string.postponed_backup_warning), Toast.LENGTH_LONG).show();
         }
     }
 
-    private void initViews()
-    {
+    private void initViews() {
         successOverlay = findViewById(R.id.layout_success_overlay);
         successImage = findViewById(R.id.success_image);
 
@@ -346,17 +311,12 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         });
     }
 
-    public void showBackupWalletDialog(boolean walletImported)
-    {
-        if (!viewModel.isFindWalletAddressDialogShown())
-        {
+    public void showBackupWalletDialog(boolean walletImported) {
+        if (!viewModel.isFindWalletAddressDialogShown()) {
             //check if wallet was imported - in which case no need to display
-            if (walletImported)
-            {
+            if (walletImported) {
                 viewModel.setFindWalletAddressDialogShown(true);
-            }
-            else
-            {
+            } else {
                 int lighterBackground = Color.argb(102, 0, 0, 0); //40% opacity
                 backupWalletDialog = TutoShowcase.from(this);
                 backupWalletDialog.setContentView(R.layout.showcase_backup_wallet)
@@ -376,35 +336,28 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         }
     }
 
-    private void onWalletName(String name)
-    {
-        if (name != null && !name.isEmpty())
-        {
+    private void onWalletName(String name) {
+        if (name != null && !name.isEmpty()) {
             walletTitle = name;
-        }
-        else
-        {
+        } else {
             walletTitle = getString(R.string.toolbar_header_wallet);
         }
 
         ((WalletFragment) walletFragment).setToolbarTitle(walletTitle);
     }
 
-    private void onError(ErrorEnvelope errorEnvelope)
-    {
+    private void onError(ErrorEnvelope errorEnvelope) {
 
     }
 
     @SuppressLint("RestrictedApi")
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         viewModel.prepare();
         viewModel.getWalletName(this);
         viewModel.setErrorCallback(this);
-        if (homeReceiver == null)
-        {
+        if (homeReceiver == null) {
             homeReceiver = new HomeReceiver(this, this);
         }
         checkRoot();
@@ -413,80 +366,64 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         handler.post(() -> {
             //check clipboard
             String magicLink = ImportTokenActivity.getMagiclinkFromClipboard(this);
-            if (magicLink != null)
-            {
+            if (magicLink != null) {
                 viewModel.showImportLink(this, magicLink);
             }
         });
     }
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
-        if (dialog != null && dialog.isShowing())
-        {
+        if (dialog != null && dialog.isShowing()) {
             dialog.dismiss();
         }
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState)
-    {
+    public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt(STORED_PAGE, viewPager.getCurrentItem());
-        if (getSelectedItem() != null)
-        {
+        if (getSelectedItem() != null) {
             viewModel.storeCurrentFragmentId(getSelectedItem().ordinal());
         }
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState)
-    {
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         int oldPage = savedInstanceState.getInt(STORED_PAGE);
-        if (oldPage >= 0 && oldPage < WalletPage.values().length)
-        {
+        if (oldPage >= 0 && oldPage < WalletPage.values().length) {
             showPage(WalletPage.values()[oldPage]);
         }
     }
 
     @Override
-    public void onClick(View view)
-    {
-        if (view.getId() == R.id.try_again)
-        {
+    public void onClick(View view) {
+        if (view.getId() == R.id.try_again) {
             //What is try again?
         }
     }
 
     @Override
-    public boolean onBottomNavigationItemSelected(WalletPage index)
-    {
-        switch (index)
-        {
-            case DAPP_BROWSER:
-            {
-                if (getSelectedItem() != DAPP_BROWSER)
-                {
+    public boolean onBottomNavigationItemSelected(WalletPage index) {
+        switch (index) {
+            case DAPP_BROWSER: {
+                if (getSelectedItem() != DAPP_BROWSER) {
                     showPage(DAPP_BROWSER);
                 }
                 ((DappBrowserFragment) dappBrowserFragment).selected();
                 return true;
             }
-            case WALLET:
-            {
+            case WALLET: {
                 showPage(WALLET);
                 return true;
             }
-            case SETTINGS:
-            {
+            case SETTINGS: {
                 showPage(SETTINGS);
                 return true;
             }
-            case ACTIVITY:
-            {
+            case ACTIVITY: {
                 showPage(ACTIVITY);
                 return true;
             }
@@ -494,10 +431,8 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         return false;
     }
 
-    private void checkRoot()
-    {
-        if (RootUtil.isDeviceRooted() && viewModel.shouldShowRootWarning())
-        {
+    private void checkRoot() {
+        if (RootUtil.isDeviceRooted() && viewModel.shouldShowRootWarning()) {
             viewModel.setShowRootWarning(false);
             AWalletAlertDialog dialog = new AWalletAlertDialog(this);
             dialog.setTitle(R.string.root_title);
@@ -509,33 +444,28 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         }
     }
 
-    public void onBrowserWithURL(String url)
-    {
+    public void onBrowserWithURL(String url) {
         showPage(DAPP_BROWSER);
         ((DappBrowserFragment) dappBrowserFragment).onItemClick(url);
     }
 
     @Override
-    public void onDestroy()
-    {
-        if (getSelectedItem() != null) viewModel.storeCurrentFragmentId(getSelectedItem().ordinal());
+    public void onDestroy() {
+        if (getSelectedItem() != null)
+            viewModel.storeCurrentFragmentId(getSelectedItem().ordinal());
         super.onDestroy();
         viewModel.onClean();
-        if (homeReceiver != null)
-        {
+        if (homeReceiver != null) {
             unregisterReceiver(homeReceiver);
             homeReceiver = null;
         }
     }
 
-    private void showPage(WalletPage page)
-    {
+    private void showPage(WalletPage page) {
         int oldPage = viewPager.getCurrentItem();
 
-        switch (page)
-        {
-            case DAPP_BROWSER:
-            {
+        switch (page) {
+            case DAPP_BROWSER: {
                 hideToolbar();
                 viewPager.setCurrentItem(DAPP_BROWSER.ordinal());
                 setTitle(getString(R.string.toolbar_header_browser));
@@ -544,16 +474,12 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 invalidateOptionsMenu();
                 break;
             }
-            case WALLET:
-            {
+            case WALLET: {
                 showToolbar();
                 viewPager.setCurrentItem(WALLET.ordinal());
-                if (walletTitle == null || walletTitle.isEmpty())
-                {
+                if (walletTitle == null || walletTitle.isEmpty()) {
                     setTitle(getString(R.string.toolbar_header_wallet));
-                }
-                else
-                {
+                } else {
                     setTitle(walletTitle);
                 }
                 selectNavigationItem(WALLET);
@@ -561,8 +487,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 invalidateOptionsMenu();
                 break;
             }
-            case SETTINGS:
-            {
+            case SETTINGS: {
                 showToolbar();
                 viewPager.setCurrentItem(SETTINGS.ordinal());
                 setTitle(getString(R.string.toolbar_header_settings));
@@ -571,8 +496,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 invalidateOptionsMenu();
                 break;
             }
-            case ACTIVITY:
-            {
+            case ACTIVITY: {
                 showToolbar();
                 viewPager.setCurrentItem(ACTIVITY.ordinal());
                 setTitle(getString(R.string.activity_label));
@@ -595,25 +519,21 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         signalPageVisibilityChange(oldPage, page.ordinal());
     }
 
-    private void signalPageVisibilityChange(int oldPage, int newPage)
-    {
+    private void signalPageVisibilityChange(int oldPage, int newPage) {
         if (oldPage == newPage) return;
 
         BaseFragment leavingFocus = (BaseFragment) getFragment(oldPage);
-        BaseFragment inFocus      = (BaseFragment) getFragment(newPage);
+        BaseFragment inFocus = (BaseFragment) getFragment(newPage);
         leavingFocus.leaveFocus();
         inFocus.comeIntoFocus();
     }
 
-    private void checkWarnings()
-    {
-        if (updatePrompt)
-        {
+    private void checkWarnings() {
+        if (updatePrompt) {
             hideDialog();
             updatePrompt = false;
             int warns = viewModel.getUpdateWarnings() + 1;
-            if (warns < 3)
-            {
+            if (warns < 3) {
                 AWalletConfirmationDialog cDialog = new AWalletConfirmationDialog(this);
                 cDialog.setTitle(R.string.alphawallet_update);
                 cDialog.setCancelable(true);
@@ -624,9 +544,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 });
                 dialog = cDialog;
                 dialog.show();
-            }
-            else if (warns > 10)
-            {
+            } else if (warns > 10) {
                 warns = 0;
             }
 
@@ -635,28 +553,24 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @Override
-    public void TokensReady()
-    {
+    public void TokensReady() {
         ((ActivityFragment) activityFragment).resetTokens();
     }
 
     @Override
-    public void AddToken(String address)
-    {
+    public void AddToken(String address) {
         viewModel.showAddToken(this, address);
     }
 
     @Override
-    public void updateReady(int updateVersion)
-    {
+    public void updateReady(int updateVersion) {
         //signal to WalletFragment an update is ready
         //display entry in the WalletView
-        ((NewSettingsFragment)settingsFragment).signalUpdate(updateVersion);
+        ((NewSettingsFragment) settingsFragment).signalUpdate(updateVersion);
     }
 
     @Override
-    public void tokenScriptError(String message)
-    {
+    public void tokenScriptError(String message) {
         handler.removeCallbacksAndMessages(null); //remove any previous error call, only use final error
         // This is in a runnable because the error will come from non main thread process
         handler.postDelayed(() -> {
@@ -674,19 +588,16 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         }, 500);
     }
 
-    void backupWalletFail(String keyBackup, boolean hasNoLock)
-    {
+    void backupWalletFail(String keyBackup, boolean hasNoLock) {
         //postpone backup until later
         ((NewSettingsFragment) settingsFragment).backupSeedSuccess(hasNoLock);
-        if (keyBackup != null)
-        {
+        if (keyBackup != null) {
             ((WalletFragment) walletFragment).remindMeLater(new Wallet(keyBackup));
             viewModel.checkIsBackedUp(keyBackup);
         }
     }
 
-    void backupWalletSuccess(String keyBackup)
-    {
+    void backupWalletSuccess(String keyBackup) {
         ((NewSettingsFragment) settingsFragment).backupSeedSuccess(false);
         ((WalletFragment) walletFragment).storeWalletBackupTime(keyBackup);
         removeSettingsBadgeKey(C.KEY_NEEDS_BACKUP);
@@ -696,35 +607,28 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @Override
-    public void run()
-    {
-        if (successOverlay.getAlpha() > 0)
-        {
+    public void run() {
+        if (successOverlay.getAlpha() > 0) {
             successOverlay.animate().alpha(0.0f).setDuration(500);
             handler.postDelayed(this, 750);
-        }
-        else
-        {
+        } else {
             successOverlay.setVisibility(View.GONE);
             successOverlay.setAlpha(1.0f);
         }
     }
 
     @Override
-    public void gotAuthorisation(boolean gotAuth)
-    {
+    public void gotAuthorisation(boolean gotAuth) {
 
     }
 
     @Override
-    public void cancelAuthentication()
-    {
+    public void cancelAuthentication() {
 
     }
 
     @Override
-    public void createdKey(String keyAddress)
-    {
+    public void createdKey(String keyAddress) {
         //Key was upgraded
         //viewModel.upgradeWallet(keyAddress);
     }
@@ -736,8 +640,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
      *
      * @param fragmentId
      */
-    public void resetFragment(WalletPage fragmentId)
-    {
+    public void resetFragment(WalletPage fragmentId) {
         Fragment fragment = getFragment(fragmentId.ordinal());
 
         getSupportFragmentManager()
@@ -747,30 +650,24 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 .commitAllowingStateLoss();
     }
 
-    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter
-    {
-        public ScreenSlidePagerAdapter(FragmentManager fm)
-        {
+    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+        public ScreenSlidePagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
-        public Fragment getItem(int position)
-        {
+        public Fragment getItem(int position) {
             return getFragment(position);
         }
 
         @Override
-        public int getCount()
-        {
+        public int getCount() {
             return WalletPage.values().length;
         }
     }
 
-    private Fragment getFragment(int item)
-    {
-        switch (WalletPage.values()[item])
-        {
+    private Fragment getFragment(int item) {
+        switch (WalletPage.values()[item]) {
             case DAPP_BROWSER:
                 return dappBrowserFragment;
             case WALLET:
@@ -785,8 +682,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @Override
-    public void downloadReady(String build)
-    {
+    public void downloadReady(String build) {
         hideDialog();
         buildVersion = build;
         //display download ready popup
@@ -799,18 +695,14 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         dialog.setMediumText(newBuild);
         dialog.setPrimaryButtonText(R.string.confirm_update);
         dialog.setPrimaryButtonListener(v -> {
-            if (checkWritePermission(RC_DOWNLOAD_EXTERNAL_WRITE_PERM))
-            {
+            if (checkWritePermission(RC_DOWNLOAD_EXTERNAL_WRITE_PERM)) {
                 viewModel.downloadAndInstall(build, this);
             }
             dialog.dismiss();
         });
-        if (asks > 1)
-        {
+        if (asks > 1) {
             dialog.setSecondaryButtonText(R.string.dialog_not_again);
-        }
-        else
-        {
+        } else {
             dialog.setSecondaryButtonText(R.string.dialog_later);
         }
         dialog.setSecondaryButtonListener(v -> {
@@ -823,132 +715,104 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @Override
-    public void resetToolbar()
-    {
+    public void resetToolbar() {
         invalidateOptionsMenu();
     }
 
     @Override
-    public void requestNotificationPermission()
-    {
+    public void requestNotificationPermission() {
         checkNotificationPermission(RC_ASSET_NOTIFICATION_PERM);
     }
 
     @Override
-    public void backupSuccess(String keyAddress)
-    {
+    public void backupSuccess(String keyAddress) {
         if (Utils.isAddressValid(keyAddress)) backupWalletSuccess(keyAddress);
     }
 
     //Deprecated
     @Override
-    public void changeCurrency()
-    {
+    public void changeCurrency() {
 
     }
 
     @Override
-    public void resetTokens()
-    {
+    public void resetTokens() {
         ((ActivityFragment) activityFragment).resetTokens();
         ((WalletFragment) walletFragment).resetTokens();
     }
 
     @Override
-    public void addedToken(List<ContractLocator> tokenContracts)
-    {
+    public void addedToken(List<ContractLocator> tokenContracts) {
         ((ActivityFragment) activityFragment).addedToken(tokenContracts);
     }
 
     @Override
-    public void changedLocale()
-    {
+    public void changedLocale() {
         ((WalletFragment) walletFragment).changedLocale();
     }
 
     @Override
-    public void resetTransactions()
-    {
+    public void resetTransactions() {
         ((ActivityFragment) activityFragment).resetTransactions();
     }
 
     @Override
-    public void refreshTokens()
-    {
+    public void refreshTokens() {
         ((WalletFragment) walletFragment).refreshTokens();
     }
 
     @Override
-    public void openWalletConnect(String sessionId)
-    {
+    public void openWalletConnect(String sessionId) {
         Intent intent = new Intent(getApplication(), WalletConnectActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         intent.putExtra("session", sessionId);
         startActivity(intent);
     }
 
-    private void hideDialog()
-    {
-        if (dialog != null && dialog.isShowing())
-        {
+    private void hideDialog() {
+        if (dialog != null && dialog.isShowing()) {
             dialog.dismiss();
         }
     }
 
-    private boolean checkWritePermission(int permissionTag)
-    {
+    private boolean checkWritePermission(int permissionTag) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED)
-        {
+                == PackageManager.PERMISSION_GRANTED) {
             return true;
-        }
-        else
-        {
+        } else {
             final String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
             if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE))
-            {
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 Log.w("HomeActivity", "Folder write permission is not granted. Requesting permission");
                 ActivityCompat.requestPermissions(this, permissions, permissionTag);
                 return false;
-            }
-            else
-            {
+            } else {
                 return true;
             }
         }
     }
 
-    private boolean checkNotificationPermission(int permissionTag)
-    {
+    private boolean checkNotificationPermission(int permissionTag) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NOTIFICATION_POLICY)
-                == PackageManager.PERMISSION_GRANTED)
-        {
+                == PackageManager.PERMISSION_GRANTED) {
             return true;
-        }
-        else
-        {
+        } else {
             final String[] permissions = new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
             if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_NOTIFICATION_POLICY))
-            {
+                    Manifest.permission.ACCESS_NOTIFICATION_POLICY)) {
                 Log.w("HomeActivity", "Notification permission is not granted. Requesting permission");
                 ActivityCompat.requestPermissions(this, permissions, permissionTag);
                 return false;
-            }
-            else
-            {
+            } else {
                 return true;
             }
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
-    {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode)
-        {
+        switch (requestCode) {
             case DappBrowserFragment.REQUEST_CAMERA_ACCESS:
                 ((DappBrowserFragment) dappBrowserFragment).gotCameraAccess(permissions, grantResults);
                 break;
@@ -959,12 +823,9 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 ((DappBrowserFragment) dappBrowserFragment).gotGeoAccess(permissions, grantResults);
                 break;
             case RC_DOWNLOAD_EXTERNAL_WRITE_PERM:
-                if (hasPermission(permissions, grantResults))
-                {
+                if (hasPermission(permissions, grantResults)) {
                     viewModel.downloadAndInstall(buildVersion, this);
-                }
-                else
-                {
+                } else {
                     showRequirePermissionError();
                 }
                 break;
@@ -974,19 +835,16 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         }
     }
 
-    private boolean hasPermission(String[] permissions, int[] grantResults)
-    {
+    private boolean hasPermission(String[] permissions, int[] grantResults) {
         boolean hasPermission = true;
-        for (int i = 0; i < permissions.length; i++)
-        {
+        for (int i = 0; i < permissions.length; i++) {
             if (grantResults[i] == -1) hasPermission = false;
         }
 
         return hasPermission;
     }
 
-    private void showRequirePermissionError()
-    {
+    private void showRequirePermissionError() {
         AWalletAlertDialog aDialog = new AWalletAlertDialog(this);
         aDialog.setIcon(AWalletAlertDialog.ERROR);
         aDialog.setTitle(R.string.install_error);
@@ -998,19 +856,15 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         aDialog.show();
     }
 
-    private void onInstallIntent(File installFile)
-    {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-        {
+    private void onInstallIntent(File installFile) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             String authority = BuildConfig.APPLICATION_ID + ".fileprovider";
             Uri apkUri = FileProvider.getUriForFile(getApplicationContext(), authority, installFile);
             Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
             intent.setData(apkUri);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivity(intent);
-        }
-        else
-        {
+        } else {
             Uri apkUri = Uri.fromFile(installFile);
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
@@ -1024,20 +878,16 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Operation taskCode = null;
-        if (requestCode >= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS && requestCode <= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS + 10)
-        {
+        if (requestCode >= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS && requestCode <= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS + 10) {
             taskCode = Operation.values()[requestCode - SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS];
             requestCode = SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS;
         }
 
-        switch (requestCode)
-        {
+        switch (requestCode) {
             case C.SET_GAS_SETTINGS:
-                if (data != null)
-                {
+                if (data != null) {
                     int gasSelectionIndex = data.getIntExtra(C.EXTRA_SINGLE_ITEM, -1);
                     long customNonce = data.getLongExtra(C.EXTRA_NONCE, -1);
                     BigDecimal customGasPrice = new BigDecimal(data.getStringExtra(C.EXTRA_GAS_PRICE));
@@ -1058,8 +908,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 else backupWalletFail(keyBackup, noLockScreen);
                 break;
             case SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS:
-                switch (getSelectedItem())
-                {
+                switch (getSelectedItem()) {
                     case DAPP_BROWSER:
                         ((DappBrowserFragment) dappBrowserFragment).pinAuthorisation(resultCode == RESULT_OK);
                         break;
@@ -1071,40 +920,31 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 updateLocale(data);
                 break;
             case C.REQUEST_UNIVERSAL_SCAN:
-                if (data != null && resultCode == Activity.RESULT_OK)
-                {
-                    if (data.hasExtra(C.EXTRA_QR_CODE))
-                    {
+                if (data != null && resultCode == Activity.RESULT_OK) {
+                    if (data.hasExtra(C.EXTRA_QR_CODE)) {
                         String qrCode = data.getStringExtra(C.EXTRA_QR_CODE);
                         viewModel.handleQRCode(this, qrCode);
-                    }
-                    else if (data.hasExtra(C.EXTRA_ACTION_NAME))
-                    {
+                    } else if (data.hasExtra(C.EXTRA_ACTION_NAME)) {
                         String action = data.getStringExtra(C.EXTRA_ACTION_NAME);
 
-                        if (action.equalsIgnoreCase(C.ACTION_MY_ADDRESS_SCREEN))
-                        {
+                        if (action.equalsIgnoreCase(C.ACTION_MY_ADDRESS_SCREEN)) {
                             viewModel.showMyAddress(this);
                         }
                     }
                 }
             case C.TOKEN_SEND_ACTIVITY:
-                if (data != null && resultCode == Activity.RESULT_OK && data.hasExtra(C.DAPP_URL_LOAD))
-                {
+                if (data != null && resultCode == Activity.RESULT_OK && data.hasExtra(C.DAPP_URL_LOAD)) {
                     String url = data.getStringExtra(C.DAPP_URL_LOAD);
                     int chainId = data.getIntExtra(C.EXTRA_CHAIN_ID, MAINNET_ID);
-                    ((DappBrowserFragment)dappBrowserFragment).switchNetworkAndLoadUrl(chainId, url);
+                    ((DappBrowserFragment) dappBrowserFragment).switchNetworkAndLoadUrl(chainId, url);
                     showPage(DAPP_BROWSER);
-                }
-                else if (data != null && resultCode == Activity.RESULT_OK && data.hasExtra(C.EXTRA_TXHASH))
-                {
+                } else if (data != null && resultCode == Activity.RESULT_OK && data.hasExtra(C.EXTRA_TXHASH)) {
                     showPage(ACTIVITY);
                 }
                 break;
             case C.TERMINATE_ACTIVITY:
-                if (data != null && resultCode == Activity.RESULT_OK)
-                {
-                    ((ActivityFragment)activityFragment).scrollToTop();
+                if (data != null && resultCode == Activity.RESULT_OK) {
+                    ((ActivityFragment) activityFragment).scrollToTop();
                     showPage(ACTIVITY);
                 }
                 break;
@@ -1116,21 +956,15 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
 
     @SuppressLint("RestrictedApi")
     @Override
-    protected boolean onPrepareOptionsPanel(View view, Menu menu)
-    {
-        if (menu != null)
-        {
-            if (menu.getClass().getSimpleName().equals("MenuBuilder"))
-            {
-                try
-                {
+    protected boolean onPrepareOptionsPanel(View view, Menu menu) {
+        if (menu != null) {
+            if (menu.getClass().getSimpleName().equals("MenuBuilder")) {
+                try {
                     Method m = menu.getClass().getDeclaredMethod(
                             "setOptionalIconsVisible", Boolean.TYPE);
                     m.setAccessible(true);
                     m.invoke(menu, true);
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     Log.e(getClass().getSimpleName(), "onMenuOpened...unable to set icons for overflow menu", e);
                 }
             }
@@ -1138,20 +972,17 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         return super.onPrepareOptionsPanel(view, menu);
     }
 
-    public static void setUpdatePrompt()
-    {
+    public static void setUpdatePrompt() {
         //TODO: periodically check this value (eg during page flipping)
         //Set alert to user to update their app
         updatePrompt = true;
     }
 
-    void postponeWalletBackupWarning(String walletAddress)
-    {
+    void postponeWalletBackupWarning(String walletAddress) {
         removeSettingsBadgeKey(C.KEY_NEEDS_BACKUP);
     }
 
-    public void updateLocale(Intent data)
-    {
+    public void updateLocale(Intent data) {
         if (data == null) return;
         String newLocale = data.getStringExtra(C.EXTRA_LOCALE);
         sendBroadcast(new Intent(CHANGED_LOCALE));
@@ -1159,31 +990,23 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         //Check if current page is WALLET or not
-        if (viewPager.getCurrentItem() == DAPP_BROWSER.ordinal())
-        {
-            ((DappBrowserFragment)dappBrowserFragment).backPressed();
-        }
-        else if (viewPager.getCurrentItem() != WALLET.ordinal() && isNavBarVisible())
-        {
+        if (viewPager.getCurrentItem() == DAPP_BROWSER.ordinal()) {
+            ((DappBrowserFragment) dappBrowserFragment).backPressed();
+        } else if (viewPager.getCurrentItem() != WALLET.ordinal() && isNavBarVisible()) {
             showPage(WALLET);
-        }
-        else
-        {
+        } else {
             super.onBackPressed();
         }
     }
 
-    public void showAndRefreshWallet()
-    {
+    public void showAndRefreshWallet() {
         showPage(WALLET);
         resetTokens();
     }
 
-    public void useActionSheet(String mode)
-    {
+    public void useActionSheet(String mode) {
         viewModel.actionSheetConfirm(mode);
     }
 

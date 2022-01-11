@@ -28,11 +28,9 @@ public class RealmManager {
     }
 
     Realm getRealmInstanceInternal(String name) {
-        try
-        {
+        try {
             RealmConfiguration config = realmConfigurations.get(name);
-            if (config == null)
-            {
+            if (config == null) {
                 config = new RealmConfiguration.Builder().name(name)
                         .schemaVersion(BuildConfig.DB_VERSION)
                         .migration(new AWRealmMigration())
@@ -40,13 +38,10 @@ public class RealmManager {
                 realmConfigurations.put(name, config);
             }
             return Realm.getInstance(config);
-        }
-        catch (RealmMigrationNeededException e)
-        {
+        } catch (RealmMigrationNeededException e) {
             //we require a realm migration, but this wasn't provided.
             RealmConfiguration config = realmConfigurations.get(name);
-            if (config == null)
-            {
+            if (config == null) {
                 config = new RealmConfiguration.Builder().name(name)
                         .schemaVersion(BuildConfig.DB_VERSION)
                         .deleteRealmIfMigrationNeeded()
