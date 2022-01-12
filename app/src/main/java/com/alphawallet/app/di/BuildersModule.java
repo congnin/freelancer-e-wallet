@@ -23,6 +23,7 @@ import com.alphawallet.app.ui.ImportWalletActivity;
 import com.alphawallet.app.ui.MyAddressActivity;
 import com.alphawallet.app.ui.NameThisWalletActivity;
 import com.alphawallet.app.ui.NewSettingsFragment;
+import com.alphawallet.app.ui.NewSettingsFragmentV2;
 import com.alphawallet.app.ui.RedeemAssetSelectActivity;
 import com.alphawallet.app.ui.RedeemSignatureDisplayActivity;
 import com.alphawallet.app.ui.SelectNetworkActivity;
@@ -98,6 +99,10 @@ public abstract class BuildersModule {
 	@FragmentScope
 	@ContributesAndroidInjector(modules = NewSettingsModule.class)
 	abstract NewSettingsFragment bindNewSettingsFragment();
+
+	@FragmentScope
+	@ContributesAndroidInjector(modules = NewSettingsModule.class)
+	abstract NewSettingsFragmentV2 bindNewSettings2Fragment();
 
 	@FragmentScope
 	@ContributesAndroidInjector(modules = ActivityModule.class)

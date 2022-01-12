@@ -121,7 +121,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     public HomeActivity() {
         if (CustomViewSettings.hideDappBrowser()) dappBrowserFragment = new Fragment();
         else dappBrowserFragment = new DappBrowserFragment();
-        settingsFragment = new NewSettingsFragment();
+        settingsFragment = new NewSettingsFragmentV2();
         walletFragment = new WalletFragment();
         activityFragment = new ActivityFragment();
         pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
@@ -566,7 +566,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     public void updateReady(int updateVersion) {
         //signal to WalletFragment an update is ready
         //display entry in the WalletView
-        ((NewSettingsFragment) settingsFragment).signalUpdate(updateVersion);
+        ((NewSettingsFragmentV2) settingsFragment).signalUpdate(updateVersion);
     }
 
     @Override
@@ -590,7 +590,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
 
     void backupWalletFail(String keyBackup, boolean hasNoLock) {
         //postpone backup until later
-        ((NewSettingsFragment) settingsFragment).backupSeedSuccess(hasNoLock);
+        ((NewSettingsFragmentV2) settingsFragment).backupSeedSuccess(hasNoLock);
         if (keyBackup != null) {
             ((WalletFragment) walletFragment).remindMeLater(new Wallet(keyBackup));
             viewModel.checkIsBackedUp(keyBackup);
@@ -598,7 +598,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     void backupWalletSuccess(String keyBackup) {
-        ((NewSettingsFragment) settingsFragment).backupSeedSuccess(false);
+        ((NewSettingsFragmentV2) settingsFragment).backupSeedSuccess(false);
         ((WalletFragment) walletFragment).storeWalletBackupTime(keyBackup);
         removeSettingsBadgeKey(C.KEY_NEEDS_BACKUP);
         if (successImage != null) successImage.setImageResource(R.drawable.big_green_tick);
