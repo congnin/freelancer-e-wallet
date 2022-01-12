@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -157,6 +158,7 @@ import static com.alphawallet.app.util.KeyboardUtils.showKeyboard;
 import static com.alphawallet.app.widget.AWalletAlertDialog.ERROR;
 import static com.alphawallet.app.widget.AWalletAlertDialog.WARNING;
 import static org.web3j.protocol.core.methods.request.Transaction.createEthCallTransaction;
+import static io.realm.Realm.getApplicationContext;
 
 public class DappBrowserFragment extends BaseFragment implements OnSignTransactionListener, OnSignPersonalMessageListener,
         OnSignTypedMessageListener, OnSignMessageListener, OnEthCallListener, OnWalletAddEthereumChainObjectListener,
@@ -480,7 +482,8 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
             inflater.inflate(R.menu.menu_bookmarks, toolbar.getMenu());
         }
         refresh = view.findViewById(R.id.refresh);
-
+        Drawable drawable = ContextCompat.getDrawable(getActivity(), R.drawable.ic_horizontal_dot);
+        toolbar.setOverflowIcon(drawable);
 
         RelativeLayout layout = view.findViewById(R.id.address_bar_layout);
         layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
