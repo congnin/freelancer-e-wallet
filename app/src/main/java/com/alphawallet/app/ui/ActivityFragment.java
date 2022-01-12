@@ -89,7 +89,9 @@ public class ActivityFragment extends BaseFragment implements View.OnClickListen
     {
         realm = viewModel.getRealmInstance();
         adapter.updateActivityItems(buildTransactionList(activityItems).toArray(new ActivityMeta[0]));
-        showEmptyTx();
+
+        //Todo: don't show empty view
+//        showEmptyTx();
 
         for (ActivityMeta am : activityItems)
         {
